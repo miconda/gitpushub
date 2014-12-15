@@ -1,4 +1,6 @@
-# GITPusHub - PHP Hub Script for Github Push Notifications
+# GITPusHub
+
+PHP Hub Script for Github Push Notifications
 
 ## Overview
 
