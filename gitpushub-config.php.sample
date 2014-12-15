@@ -1,0 +1,29 @@
+<?php
+//- GITPusHub - config options
+
+//- secret token as configured in the webhook from github.net
+// $githubSecret = 'some-random-string';
+
+//- email address where to send the notification email
+// $notifyEmailAddress = 'user@yourdomain.com';
+
+//- where is the local clone of the repository to update
+// $gitCloneDirectory = '/usr/local/mirrors/github/projectid';
+
+//- path where to write json documents from notification requests
+// $notifyLogFile = '/tmp/github-notify.log';
+
+//- debug log level:
+//-     0 - important log messages;
+//-     1 - extra log messages;
+//-     2 - json docs to $notifylog
+//-     3 - json docs to syslog
+$debugLevel = 0;
+
+//- limit of number of commits to send one notification email
+//-   * if the notification contains more commits, one email is sent for all commits
+$gitCommitsSplitLimit = 15;
+
+//- limit for patch size (bytes) in order to attach it
+$attachPatchSizeLimit = 4096;
+?>
