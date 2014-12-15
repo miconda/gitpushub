@@ -73,6 +73,7 @@ $gitCloneDirectory='/tmp/github/mirrors/projectid';
 ## Author
 
 Daniel-Constantin Mierla (@miconda)
+
 Contact: via github
 
 ## License
