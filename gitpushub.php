@@ -33,6 +33,18 @@ function send_email_notification($jdoc)
 	if (0 === strpos($mbranch, 'refs/heads/')) {
 		$mbranch = substr($mbranch, 11);
 	}
+	if (array_key_exists('only', $branches)) {
+		if (!in_array($mbranch, $branches['only'])) {
+			error_log('branch: '. $mbranch. ' not in whitelist');
+			return;
+		}
+	}
+	elseif (array_key_exists('except', $branches)) {
+		if (in_array($mbranch, $branches['except'])) {
+			error_log('branch: '. $mbranch. ' in blacklist');
+			return;
+		}
+	}
 
 	if($nrcommits<=$gitCommitsSplitLimit) {
 		// one email per commit
