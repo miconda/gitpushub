@@ -26,4 +26,12 @@ $gitCommitsSplitLimit = 15;
 
 //- limit for patch size (bytes) in order to attach it
 $attachPatchSizeLimit = 4096;
+
+// branches
+// only: whitelist
+// except: blacklist
+// don't mix both
+$branches = array();
+$branches['only'] = array('master', '3.3', '4.0', '4.1', '4.2');
+//$branches['except'] = array();
 ?>
