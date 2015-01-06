@@ -40,7 +40,8 @@ variable $githubSecret.
 ### Email Notification
 
 Set the address where to send the notification inside gitpushub-config.php to
-the variable $notifyEmailAddress.
+the variable $notifyEmailAddress. More advanced filtering rules (by matching
+on branch name) can be added via $notifyEmailRules.
 
 The email format was guided based on Kamailio project custom git commit
 notification. If the number of commits in a push is <=15, then one email is
