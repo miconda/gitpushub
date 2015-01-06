@@ -1,10 +1,12 @@
 <?php
+
 //- GITPusHub - config options
 
 //- secret token as configured in the webhook from github.net
 // $githubSecret = 'some-random-string';
 
 //- email address where to send the notification email
+//-   see $notifyEmailRules for filtering notifications
 // $notifyEmailAddress = 'user@yourdomain.com';
 
 //- where is the local clone of the repository to update
@@ -27,11 +29,53 @@ $gitCommitsSplitLimit = 15;
 //- limit for patch size (bytes) in order to attach it
 $attachPatchSizeLimit = 4096;
 
-// branches
-// only: whitelist
-// except: blacklist
-// don't mix both
-$branches = array();
-$branches['only'] = array('master', '3.3', '4.0', '4.1', '4.2');
-//$branches['except'] = array();
+//- rules to send notifications based on filtering branches
+//-   * higher priority than notifyEmailAddress
+//-   * if this is set and not empty, then $notifyEmailAddress is ignored
+//-   * content is an array with rules to match on branch name
+//-     (note that branch name is considered after the prefix 'refs/heads/')
+//- each rule contains:
+//-   * name - just for meaningful referencing
+//-   * match - type of match to be performed
+//-       * str - string comparison (==)
+//-       * regex - regular expression (preg match)
+//-   * expr - array with values to match
+//-   * sendto - array with email addresses where to send notifications
+//-     (can be empty array to skip sending notifications)
+//- matching processing
+//-   * searching stops at first match
+//-   * if no match is found, no email notifications are sent
+//$notifyEmailRules = array(
+//	array (
+//		'name' => 'main branches',
+//		'match' => 'str',
+//		'expr' => array (
+//			'master', '4.2', '4.1'
+//		),
+//		'sendto' => array (
+//			'main-commits@example.com'
+//		)
+//	),
+//	array (
+//		'name' => 'tmp branches',
+//		'match' => 'regex',
+//		'expr' => array (
+//			'%^tmp/%'
+//		),
+//		'sendto' => array (
+//			'tmp-commits@example.com'
+//		)
+//	),
+//	array (
+//		'name' => 'all other branches',
+//		'match' => 'regex',
+//		'expr' => array (
+//			'%.*%'
+//		),
+//		'sendto' => array (
+//			'other-commits@example.com'
+//		)
+//	)
+//);
+
 ?>

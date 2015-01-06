@@ -15,6 +15,7 @@ if(file_exists('gitpushub-config.php')) {
 function send_email_notification($jdoc)
 {
 	global $notifyEmailAddress;
+	global $notifyEmailRules;
 	global $debugLevel;
 	global $gitCommitsSplitLimit;
 	global $attachPatchSizeLimit;
@@ -33,17 +34,38 @@ function send_email_notification($jdoc)
 	if (0 === strpos($mbranch, 'refs/heads/')) {
 		$mbranch = substr($mbranch, 11);
 	}
-	if (array_key_exists('only', $branches)) {
-		if (!in_array($mbranch, $branches['only'])) {
-			error_log('branch: '. $mbranch. ' not in whitelist');
-			return;
+
+	/* discover the list of email addresses to send notifications */
+	$emailsList = array ();
+	$matchBranchFound = 0;
+	if(empty($notifyEmailRules) || !is_array($notifyEmailRules)) {
+		$emailsList[] = $notifyEmailAddress;
+		$matchBranchFound = 1;
+	} else {
+		foreach($notifyEmailRules as $eRule) {
+			if($eRule['match'] == 'str') {
+				foreach($eRule['expr'] as $mExpr) {
+					if($mExpr == $mbranch) {
+						$emailsList = $eRule['sendto'];
+						$matchBranchFound = 1;
+						break;
+					}
+				}
+			} else if($eRule['match'] == 'regex') {
+				foreach($eRule['expr'] as $mExpr) {
+					if(preg_match($eRule['expr'], $mbranch)) {
+						$emailsList = $eRule['sendto'];
+						$matchBranchFound = 1;
+						break;
+					}
+				}
+			}
+			if($matchBranchFound == 1) break;
 		}
 	}
-	elseif (array_key_exists('except', $branches)) {
-		if (in_array($mbranch, $branches['except'])) {
-			error_log('branch: '. $mbranch. ' in blacklist');
-			return;
-		}
+	if(empty($emailsList)) {
+		error_log('no email notification configured for branch: '. $mbranch);
+		return;
 	}
 
 	if($nrcommits<=$gitCommitsSplitLimit) {
@@ -81,7 +103,9 @@ function send_email_notification($jdoc)
 			}
 
 			$mheaders = "X-Mailer: Git\r\nFrom: " . $gcommit->committer->name . " <" . $gcommit->committer->email . ">\r\n";
-			mail($notifyEmailAddress, $msubject, $mbody, $mheaders);
+			foreach($emailsList as $emailTo) {
+				mail($emailTo, $msubject, $mbody, $mheaders);
+			}
 		}
 		return true;
 	}
@@ -96,7 +120,9 @@ function send_email_notification($jdoc)
 		$mbody .= $gcommit->message;
 		$mbody .= "\n\n";
 	}
-	mail($notifyEmailAddress, $msubject, $mbody, $mheaders);
+	foreach($emailsList as $emailTo) {
+		mail($emailTo, $msubject, $mbody, $mheaders);
+	}
 	return true;
 }
 
@@ -181,7 +207,7 @@ if(!empty($gitCloneDirectory)) {
 	error_log('kamailio github notify - cloning activity: output [[' . $output . ']]');
 }
 
-if(!empty($notifyEmailAddress)) {
+if(!empty($notifyEmailAddress) || !empty($notifyEmailRules)) {
 	// send notification
 	$content = utf8_encode($payload); 
 	$data = json_decode($content);
