@@ -3,7 +3,8 @@
 /**
  * Script to syncronize local repository mirror and notify upon a commit on github project
  *    - keep an up to date clone in real time
- *    - customized email notification (trying to keep same format or better compared with old kamailio.org notifications)
+ *    - customized email notification (starting point was trying to keep same format
+ *      or even better compared with old kamailio.org notifications)
  * Author: Daniel-Constantin Mierla <miconda@gmail.com>
  * License: GPLv2
  */
@@ -19,13 +20,14 @@ function send_email_notification($jdoc)
 	global $debugLevel;
 	global $gitCommitsSplitLimit;
 	global $attachPatchSizeLimit;
+	global $projectName;
 
 	$nrcommits = 0;
 
 	foreach ($jdoc->commits as $gcommit) {
 		$nrcommits++;
 	}
-	if($debugLevel>0) error_log('kamailio github notify - number of commits: ' . $nrcommits);
+	if($debugLevel>0) error_log($projectName . ' github notify - number of commits: ' . $nrcommits);
 	if($nrcommits<=0) {
 		return;
 	}
@@ -74,7 +76,7 @@ function send_email_notification($jdoc)
 			$msbjid = substr($gcommit->id, 0, 8);
 			$mfline = strtok($gcommit->message, "\n");
 			$msubject = "git:" . $mbranch . ":" . $msbjid . ": " . $mfline;
-			$mbody  = "Module: kamailio\n";
+			$mbody  = "Module: " . $projectName . "\n";
 			$mbody .= "Branch: " . $mbranch . "\n";
 			$mbody .= "Commit: " . $gcommit->id . "\n";
 			$mbody .= "URL: " . $gcommit->url . "\n\n";
@@ -153,13 +155,13 @@ if (!function_exists('getallheaders'))
 // github webhooks push notifications - get the headers and the payload
 $headers = getallheaders();
 if(empty($headers)) {
-	if($debugLevel>0) error_log('kamailio github notify - cloning activity: no headers');
+	if($debugLevel>0) error_log($projectName . ' github notify - cloning activity: no headers');
 	exit;
 }
 
 $payload = file_get_contents('php://input');
 if(empty($payload)) {
-	if($debugLevel>0) error_log('kamailio github notify - cloning activity: no payload');
+	if($debugLevel>0) error_log($projectName . ' github notify - cloning activity: no payload');
 	exit;
 }
 
@@ -174,7 +176,7 @@ if($debugLevel>1) {
 	}
 
 	// write the payload to the syslog for troubleshooting 
-	if($debugLevel>2) error_log('kamailio github notify - cloning activity: payload [[' . $payload . ']]');
+	if($debugLevel>2) error_log($projectName . ' github notify - cloning activity: payload [[' . $payload . ']]');
 }
 
 /* checking the secret signature */
@@ -186,7 +188,7 @@ if(!empty($githubSecret)) {
 	}
 
 	if(empty($hubSignature)) {
-		if($debugLevel>0) error_log('kamailio github notify - cloning activity: no signature header');
+		if($debugLevel>0) error_log($projectName . ' github notify - cloning activity: no signature header');
 		exit;
 	}
 
@@ -194,7 +196,7 @@ if(!empty($githubSecret)) {
 	list($algo, $hash) = explode('=', $hubSignature, 2);
 	$payloadHash = hash_hmac($algo, $payload, $githubSecret);
 	if ($hash !== $payloadHash) {
-		if($debugLevel>0) error_log('kamailio github notify - bad notification secret token');
+		if($debugLevel>0) error_log($projectName . ' github notify - bad notification secret token');
 		exit;
 	}
 }
@@ -204,7 +206,7 @@ if(!empty($gitCloneDirectory)) {
 	$output = shell_exec( 'cd ' . $gitCloneDirectory . ' && git fetch 2>&1' );
 
 	// write the output of sync command to web server log
-	error_log('kamailio github notify - cloning activity: output [[' . $output . ']]');
+	error_log($projectName . ' github notify - cloning activity: output [[' . $output . ']]');
 }
 
 if(!empty($notifyEmailAddress) || !empty($notifyEmailRules)) {
@@ -215,7 +217,7 @@ if(!empty($notifyEmailAddress) || !empty($notifyEmailRules)) {
 	if($data) {
 		send_email_notification($data);
 	} else {
-		if($debugLevel>0) error_log('kamailio github notify - no json payload');
+		if($debugLevel>0) error_log($projectName . ' github notify - no json payload');
 	}
 }
 

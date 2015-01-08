@@ -2,6 +2,10 @@
 
 //- GITPusHub - config options
 
+//- project name - used for log messages and notifications
+//-   * could be same as github project id, but it is not a must
+$projectName = 'projectname';
+
 //- secret token as configured in the webhook from github.net
 // $githubSecret = 'some-random-string';
 
