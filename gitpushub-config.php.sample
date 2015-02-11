@@ -9,6 +9,9 @@ $projectName = 'projectname';
 //- secret token as configured in the webhook from github.net
 // $githubSecret = 'some-random-string';
 
+//- URL to GitHub commit API
+// $gitAPICommitURL = 'https://api.github.com/repos/:owner/:repo/git/commits';
+
 //- email address where to send the notification email
 //-   see $notifyEmailRules for filtering notifications
 // $notifyEmailAddress = 'user@yourdomain.com';
