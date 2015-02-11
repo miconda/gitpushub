@@ -55,7 +55,7 @@ function send_email_notification($jdoc)
 				}
 			} else if($eRule['match'] == 'regex') {
 				foreach($eRule['expr'] as $mExpr) {
-					if(preg_match($eRule['expr'], $mbranch)) {
+					if(preg_match($mExpr, $mbranch)) {
 						$emailsList = $eRule['sendto'];
 						$matchBranchFound = 1;
 						break;
