@@ -107,6 +107,7 @@ function send_email_notification($jdoc)
 			$mheaders = "X-Mailer: Git\r\nFrom: " . $gcommit->committer->name . " <" . $gcommit->committer->email . ">\r\n";
 			foreach($emailsList as $emailTo) {
 				mail($emailTo, $msubject, $mbody, $mheaders);
+				if($debugLevel>0) error_log($projectName . ' sending notification to ' . $emailTo . ' for commit: [' . $gcommit->id . ']');
 			}
 		}
 		return true;
@@ -124,6 +125,7 @@ function send_email_notification($jdoc)
 	}
 	foreach($emailsList as $emailTo) {
 		mail($emailTo, $msubject, $mbody, $mheaders);
+		if($debugLevel>0) error_log($projectName . ' sending bulk notification to ' . $emailTo . ' for commits in branch: [' . $mbranch . ']');
 	}
 	return true;
 }
@@ -151,6 +153,8 @@ if (!function_exists('getallheaders'))
 }
 
 /* *** main code part *** */
+
+if($debugLevel>0) error_log($projectName . ' github notify - accessed from: [' . $_SERVER['REMOTE_ADDR'] . ']');
 
 // github webhooks push notifications - get the headers and the payload
 $headers = getallheaders();
@@ -219,6 +223,8 @@ if(!empty($notifyEmailAddress) || !empty($notifyEmailRules)) {
 	} else {
 		if($debugLevel>0) error_log($projectName . ' github notify - no json payload');
 	}
+} else {
+	if($debugLevel>0) error_log($projectName . ' github notify - no notification address or rule');
 }
 
 ?>
